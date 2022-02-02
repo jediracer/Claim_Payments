@@ -2,6 +2,9 @@
 config.py
 configTest.py
 
+# test files
+testPDFkit.ipynb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
