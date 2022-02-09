@@ -1,0 +1,19 @@
+Claim Nbr,Carrier,Lender,First Name,Last Name,Amount,Method,Check Nbr,Claim Type
+202109172488,ANICO,Charlotte Metro Credit Union,Sam,Hunt,"$5,302.64",Check,0,GAP
+202110182493,ANICO,Charlotte Metro Credit Union,ANDREW,FLYNN,$0.00,ACH-GL,0,GAP
+202110182494,ANICO,Charlotte Metro Credit Union,TYSHAUN,GRANT,"$5,138.04",ACH-GL,0,GAP
+202110192496,ANICO,City Credit Union,JOSHUA,WELCH,$0.00,Check,0,GAP
+202110192497,ANICO,Charlotte Metro Credit Union,OCTAVIO,PARTIDA,$653.87,ACH-GL,0,GAP
+202110192498,ANICO,Charlotte Metro Credit Union,SHERRY,VOGT,$0.00,ACH-GL,0,GAP
+202110192499,ANICO,City Credit Union,BRIAN ,CHANDLER,$191.17,Check,0,GAP Supp
+202110272510,ANICO,City Credit Union,TYSHAUN,GRANT,"$3,498.00",Check,0,GAP
+202111092512,ANICO,Charlotte Metro Credit Union,Ralph,Sutton,$0.00,ACH-GL,0,GAP
+202110192497,ANICO,Charlotte Metro Credit Union,OCTAVIO,PARTIDA,"$1,000.00",ACH-GL,0,GAP Plus
+202110182491,Securian Casualty,City Credit Union,TIFFANY,LEGO,"$2,144.05",Check,0,GAP
+202110182492,Securian Casualty,City Credit Union,MARY,SCHEIBLE,$0.00,Check,0,GAP
+202110182495,Securian Casualty,City Credit Union,ALEX,MITCHELL,$0.00,Check,0,GAP
+202110192500,Securian Casualty,City Credit Union,ASHLEY,MAPP,"$2,820.16",Check,0,GAP
+202110192501,Securian Casualty,City Credit Union,LEELAND,WATKINS,$103.35,Check,0,GAP
+202110182495,Securian Casualty,City Credit Union,ALEX,MITCHELL,"$1,000.00",Check,0,GAP Plus
+202110182493,Fortega,Charlotte Metro Credit Union,ANDREW,FLYNN,$0.00,Check,0,TotalRestart
+202111092512,Fortega,Charlotte Metro Credit Union,Ralph,Sutton,"$4,000.00",Check,0,TotalRestart
