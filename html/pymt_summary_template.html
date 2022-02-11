@@ -21,11 +21,11 @@
         .rpt-date {float:right;
                    font-size:16px;
                    padding: 5px 5px 10px 30px;}           
-        .df {width:100%;
-             height:100%;}                      
+        .df .error{width:100%;
+                   height:100%;}                      
         table {margin: 0 auto;
                width: 100%;
-               margin-top:30px;
+               margin-top:10px;
                margin-bottom:10px;
                border: 3px solid black;}
         th {font-weight: bold;
@@ -35,6 +35,10 @@
         td {font-size: 12px;
             border: 1px solid black;
             padding: 3px 5px 3px 5px;}
+        .err_title {font-weight: bold;
+                    text-align: left;
+                    font-size:25px;
+                    padding: 50px 0px 10px 20px;}
     </style>
 </head>
 <body>
@@ -53,6 +57,17 @@
         <div class="rec-count">
             <p id="count"></p>
         </div>
+    </div>
+    <div class="err_title">
+        <p>Errors:</p>
+    </div>
+    <div id="error">
+
+    </div>
+    <div class="footer">
+        <div class="rec-count">
+            <p id="err_count"></p>
+        </div>
         <div class="rpt-date">
             <p id="date"></p>
         </div> 
@@ -62,9 +77,11 @@
         y = n.getFullYear();
         m = n.getMonth() + 1;
         d = n.getDate();
-        num = $("tr").length -1;
+        num = $("#df tr").length -1;
+        e_num = $("#error tr").length -1;
         document.getElementById("date").innerHTML = "Report date: " + m + "/" + d + "/" + y;
         document.getElementById("count").innerHTML = num + " payments processed.";
+        document.getElementById("err_count").innerHTML = e_num + " errors occurred.";
     </script>
 </body>
 </html>
