@@ -173,7 +173,7 @@ class VGCqbCommunicator():
         self.updateStatusText(statusText)
 
         sessionManager = wc.Dispatch("QBXMLRP2.RequestProcessor")    
-        sessionManager.OpenConnection('', 'Test qbXML Request')
+        sessionManager.OpenConnection('', 'Claim Payments')
         ticket = sessionManager.BeginSession("", 2)
 
         # create qbxml query
@@ -239,7 +239,7 @@ class VGCqbCommunicator():
         self.updateStatusText(statusText)
 
         sessionManager = wc.Dispatch("QBXMLRP2.RequestProcessor")    
-        sessionManager.OpenConnection('', 'Test qbXML Request')
+        sessionManager.OpenConnection('', 'Claim Payments')
         ticket = sessionManager.BeginSession("", 2)
 
         # create qbxml query
