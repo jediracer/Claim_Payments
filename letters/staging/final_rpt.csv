@@ -1,23 +1,45 @@
 Claim Nbr,Carrier,Lender,First Name,Last Name,Amount,Method,Check Nbr,Date,Claim Type
-202110192499,ANICO,City Credit Union,BRIAN ,CHANDLER,$191.17,Check,11235,2022-02-16,GAP Supp
-202110182493,ANICO,Charlotte Metro Credit Union,ANDREW,FLYNN,$0.00,ACH-GL,0,2022-02-16,GAP
-202110182494,ANICO,Charlotte Metro Credit Union,TYSHAUN,GRANT,"$5,138.04",ACH-GL,ACH,2022-02-16,GAP
-202110272510,ANICO,City Credit Union,TYSHAUN,GRANT,"$3,498.00",Check,11236,2022-02-16,GAP
-202109172488,ANICO,Charlotte Metro Credit Union,Sam,Hunt,"$5,302.64",Check,11234,2022-02-16,GAP
-202110192497,ANICO,Charlotte Metro Credit Union,OCTAVIO,PARTIDA,$653.87,ACH-GL,ACH,2022-02-16,GAP
-202110192497,ANICO,Charlotte Metro Credit Union,OCTAVIO,PARTIDA,"$1,000.00",ACH-GL,ACH,2022-02-16,GAP Plus
-202111092512,ANICO,Charlotte Metro Credit Union,Ralph,Sutton,$0.00,ACH-GL,0,2022-02-16,GAP
-202110192498,ANICO,Charlotte Metro Credit Union,SHERRY,VOGT,$0.00,ACH-GL,0,2022-02-16,GAP
-202110192496,ANICO,City Credit Union,JOSHUA,WELCH,$0.00,Check,0,2022-02-16,GAP
-202110182493,Fortega,Charlotte Metro Credit Union,ANDREW,FLYNN,$0.00,Check,0,2022-02-16,TotalRestart
-202111092512,Fortega,Charlotte Metro Credit Union,Ralph,Sutton,"$4,000.00",Check,24,2022-02-16,TotalRestart
-202202162516,Securian Casualty,Tulare County,Tom,Cat,$566.69,Check,1111,2022-02-16,GAP
-202202162516,Securian Casualty,Tulare County,Tom,Cat,"$1,500.00",Check,1113,2022-02-16,GAP Plus
-202110182491,Securian Casualty,City Credit Union,TIFFANY,LEGO,"$2,144.05",Check,1108,2022-02-16,GAP
-202110192500,Securian Casualty,City Credit Union,ASHLEY,MAPP,"$2,820.16",Check,1109,2022-02-16,GAP
-202110182495,Securian Casualty,City Credit Union,ALEX,MITCHELL,$0.00,Check,0,2022-02-16,GAP
-202110182495,Securian Casualty,City Credit Union,ALEX,MITCHELL,"$1,000.00",Check,1112,2022-02-16,GAP Plus
-202202162517,Securian Casualty,West AirComm,Jerry,Mouse,$528.70,ACH-GL,ACH,2022-02-16,GAP
-202202162517,Securian Casualty,West AirComm,Jerry,Mouse,"$2,500.00",ACH-GL,ACH,2022-02-16,GAP Plus
-202110182492,Securian Casualty,City Credit Union,MARY,SCHEIBLE,$0.00,Check,0,2022-02-16,GAP
-202110192501,Securian Casualty,City Credit Union,LEELAND,WATKINS,$103.35,Check,1110,2022-02-16,GAP
+202110192499,ANICO,City Credit Union,BRIAN ,CHANDLER,$191.17,Check,11241,2022-02-22,GAP Supp
+202110192499,ANICO,City Credit Union,BRIAN ,CHANDLER,$191.17,Check,11244,2022-02-22,GAP Supp
+202110182493,ANICO,Charlotte Metro Credit Union,ANDREW,FLYNN,$0.00,ACH-GL,0,2022-02-22,GAP
+202110182493,ANICO,Charlotte Metro Credit Union,ANDREW,FLYNN,$0.00,ACH-GL,0,2022-02-22,GAP
+202110182494,ANICO,Charlotte Metro Credit Union,TYSHAUN,GRANT,"$5,138.04",ACH-GL,ACH,2022-02-22,GAP
+202110272510,ANICO,City Credit Union,TYSHAUN,GRANT,"$3,498.00",Check,11242,2022-02-22,GAP
+202110182494,ANICO,Charlotte Metro Credit Union,TYSHAUN,GRANT,"$5,138.04",ACH-GL,ACH,2022-02-22,GAP
+202110272510,ANICO,City Credit Union,TYSHAUN,GRANT,"$3,498.00",Check,11245,2022-02-22,GAP
+202109172488,ANICO,Charlotte Metro Credit Union,Sam,Hunt,"$5,302.64",Check,11240,2022-02-22,GAP
+202109172488,ANICO,Charlotte Metro Credit Union,Sam,Hunt,"$5,302.64",Check,11243,2022-02-22,GAP
+202110192497,ANICO,Charlotte Metro Credit Union,OCTAVIO,PARTIDA,$653.87,ACH-GL,ACH,2022-02-22,GAP
+202110192497,ANICO,Charlotte Metro Credit Union,OCTAVIO,PARTIDA,"$1,000.00",ACH-GL,ACH,2022-02-22,GAP Plus
+202110192497,ANICO,Charlotte Metro Credit Union,OCTAVIO,PARTIDA,$653.87,ACH-GL,ACH,2022-02-22,GAP
+202110192497,ANICO,Charlotte Metro Credit Union,OCTAVIO,PARTIDA,"$1,000.00",ACH-GL,ACH,2022-02-22,GAP Plus
+202111092512,ANICO,Charlotte Metro Credit Union,Ralph,Sutton,$0.00,ACH-GL,0,2022-02-22,GAP
+202111092512,ANICO,Charlotte Metro Credit Union,Ralph,Sutton,$0.00,ACH-GL,0,2022-02-22,GAP
+202110192498,ANICO,Charlotte Metro Credit Union,SHERRY,VOGT,$0.00,ACH-GL,0,2022-02-22,GAP
+202110192498,ANICO,Charlotte Metro Credit Union,SHERRY,VOGT,$0.00,ACH-GL,0,2022-02-22,GAP
+202110192496,ANICO,City Credit Union,JOSHUA,WELCH,$0.00,Check,0,2022-02-22,GAP
+202110192496,ANICO,City Credit Union,JOSHUA,WELCH,$0.00,Check,0,2022-02-22,GAP
+202110182493,Fortega,Charlotte Metro Credit Union,ANDREW,FLYNN,$0.00,Check,0,2022-02-22,TotalRestart
+202110182493,Fortega,Charlotte Metro Credit Union,ANDREW,FLYNN,$0.00,Check,0,2022-02-22,TotalRestart
+202111092512,Fortega,Charlotte Metro Credit Union,Ralph,Sutton,"$4,000.00",Check,26,2022-02-22,TotalRestart
+202111092512,Fortega,Charlotte Metro Credit Union,Ralph,Sutton,"$4,000.00",Check,27,2022-02-22,TotalRestart
+202202162516,Securian Casualty,Tulare County,Tom,Cat,$566.69,Check,1123,2022-02-22,GAP
+202202162516,Securian Casualty,Tulare County,Tom,Cat,"$1,500.00",Check,1125,2022-02-22,GAP Plus
+202202162516,Securian Casualty,Tulare County,Tom,Cat,$566.69,Check,1129,2022-02-22,GAP
+202202162516,Securian Casualty,Tulare County,Tom,Cat,"$1,500.00",Check,1131,2022-02-22,GAP Plus
+202110182491,Securian Casualty,City Credit Union,TIFFANY,LEGO,"$2,144.05",Check,1120,2022-02-22,GAP
+202110182491,Securian Casualty,City Credit Union,TIFFANY,LEGO,"$2,144.05",Check,1126,2022-02-22,GAP
+202110192500,Securian Casualty,City Credit Union,ASHLEY,MAPP,"$2,820.16",Check,1121,2022-02-22,GAP
+202110192500,Securian Casualty,City Credit Union,ASHLEY,MAPP,"$2,820.16",Check,1127,2022-02-22,GAP
+202110182495,Securian Casualty,City Credit Union,ALEX,MITCHELL,$0.00,Check,0,2022-02-22,GAP
+202110182495,Securian Casualty,City Credit Union,ALEX,MITCHELL,"$1,000.00",Check,1124,2022-02-22,GAP Plus
+202110182495,Securian Casualty,City Credit Union,ALEX,MITCHELL,$0.00,Check,0,2022-02-22,GAP
+202110182495,Securian Casualty,City Credit Union,ALEX,MITCHELL,"$1,000.00",Check,1130,2022-02-22,GAP Plus
+202202162517,Securian Casualty,West AirComm,Jerry,Mouse,$528.70,ACH-GL,ACH,2022-02-22,GAP
+202202162517,Securian Casualty,West AirComm,Jerry,Mouse,"$2,500.00",ACH-GL,ACH,2022-02-22,GAP Plus
+202202162517,Securian Casualty,West AirComm,Jerry,Mouse,$528.70,ACH-GL,ACH,2022-02-22,GAP
+202202162517,Securian Casualty,West AirComm,Jerry,Mouse,"$2,500.00",ACH-GL,ACH,2022-02-22,GAP Plus
+202110182492,Securian Casualty,City Credit Union,MARY,SCHEIBLE,$0.00,Check,0,2022-02-22,GAP
+202110182492,Securian Casualty,City Credit Union,MARY,SCHEIBLE,$0.00,Check,0,2022-02-22,GAP
+202110192501,Securian Casualty,City Credit Union,LEELAND,WATKINS,$103.35,Check,1122,2022-02-22,GAP
+202110192501,Securian Casualty,City Credit Union,LEELAND,WATKINS,$103.35,Check,1128,2022-02-22,GAP
