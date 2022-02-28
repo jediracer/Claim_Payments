@@ -40,7 +40,7 @@ class VGCqbCommunicator():
         window.iconbitmap('./images/Frostlogo_icon_32.ico')
 
         # Title label
-        Label (window, text='Claim Payments', bg='#696773', fg='#ececee', font=('Book Antiqua', 20, 'bold')) .grid(row=0, column=0, columnspan=4, padx = 30, pady = 10, sticky=W)
+        Label (window, text='Claim Payments', bg='#696773', fg='#ececee', font=('Book Antiqua', 30, 'bold')) .grid(row=0, column=0, columnspan=4, padx = 30, pady = 10, sticky=W)
 
         # Add Frost Logo
         frostLogo = PhotoImage(file='./images/Frostlogo_icon.png')
@@ -562,9 +562,6 @@ class VGCqbCommunicator():
                 # connect to claim_qb_payments db
                 self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', err_sql, 0, 1)
 
-
-
-
     #===========================
     #    QB FUNCTIONS
     #===========================
@@ -591,13 +588,29 @@ class VGCqbCommunicator():
             '''
 
         # save query results as DF
-        qb_df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql, 0, 0))
+        statusText = f'Collecting recent claim payment records...'
+        self.updateStatusText(statusText)
 
-        # add column names
-        qb_df_cols = ['rtbp_id','check_nbr', 'qb_txnid']
-        qb_df.columns = qb_df_cols
+        try:
+            qb_df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql, 0, 0))
+
+            # add column names
+            qb_df_cols = ['rtbp_id','check_nbr', 'qb_txnid']
+            qb_df.columns = qb_df_cols
+        except Exception as e:
+            print('''
+            There are not any claim payments update.
+            ERROR: {}'''.format(e))
+
+            statusText = f'\r\nThere are not any claim payments to update.\r\nProcess Cancelled.'
+            self.updateStatusText(statusText)
+
+            return        
 
         # Connect to Quickbooks
+        statusText = f'\r\nConnecting to Quickbooks...'
+        self.updateStatusText(statusText)
+
         try:
             sessionManager = wc.Dispatch("QBXMLRP2.RequestProcessor")    
             sessionManager.OpenConnection('', 'Claim Payments')
@@ -606,9 +619,16 @@ class VGCqbCommunicator():
             print('''
             Make sure QuickBooks is running and you are logged into the Company File.
             ERROR: {}'''.format(e))
-            sys.exit("Error with communicating with QuickBooks")
+
+            statusText = f'\r\nThere was an ERROR connecting to QuickBooks.\r\n***Make sure QuickBooks desktop is open and you are logged into the correct Company file.***\r\nProcess Cancelled.'
+            self.updateStatusText(statusText)
+
+            return
 
         # create qbxml to query qb for check numbers
+        statusText = f'\r\nCollecting data from Quickbooks...'
+        self.updateStatusText(statusText)        
+        
         try:
             for index, row in qb_df.iterrows():
                 qbxmlQuery = '''
@@ -644,9 +664,16 @@ class VGCqbCommunicator():
             print('''
             Make sure to print checks and process ACH in Quickbooks prior to starting this process.
             ERROR: {}'''.format(e))
-            sys.exit("Error with communicating with QuickBooks")
+
+            statusText = f'\r\nThere was an ERROR connecting to Quickbooks.\r\n***Make sure you ahve Quickbooks desktop open***\r\nProcess Cancelled.'
+            self.updateStatusText(statusText)
+
+            return
 
         # Disconnect from Quickbooks
+        statusText = f'\r\nDisconnecting from Quickbooks...'
+        self.updateStatusText(statusText)
+
         sessionManager.EndSession(ticket)
         sessionManager.CloseConnection()
 
@@ -662,6 +689,9 @@ class VGCqbCommunicator():
             '''
 
         # save query results as DF
+        statusText = f'\r\nCollecting claim payment data...'
+        self.updateStatusText(statusText)
+
         df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql, 0, 0))
 
         # add column names
@@ -683,6 +713,8 @@ class VGCqbCommunicator():
         df = df.merge(carrier_df, left_on='carrier_id', right_on='carrier_id').copy()
 
         # format df
+        statusText = f'\r\nFormatting claim payment data...'
+        self.updateStatusText(statusText)        
         # list of conditions
         type_conds = [((df['payment_category_id'] == 1) & (df['pymt_type_id'] == 1)),
                     ((df['payment_category_id'] == 1) & (df['pymt_type_id'] == 2)),
@@ -713,12 +745,18 @@ class VGCqbCommunicator():
         final_rpt_df.sort_values(by = ['Carrier', 'Last Name', 'First Name'], inplace=True)
 
         # create error_df
+        statusText = f'\r\nChecking claim payment records for errors...'
+        self.updateStatusText(statusText)
+
         error_df = df[['claim_nbr', 'lender_name', 'first', 'last', 'err_msg']].loc[df['toVGC'] == 2].copy()
 
         # Format df
         error_df.rename(columns = {'claim_nbr':'Claim Nbr', 'lender_name':'Lender', 'first':'First Name', 'last':'Last Name', 'err_msg':'Error Message'}, inplace=True)
 
         # export is df as csv
+        statusText = f'\r\nCreating Claim Payment Summary report...'
+        self.updateStatusText(statusText)
+
         final_rpt_df.to_csv(csv_file, index=False)
         error_df.to_csv(err_csv_file, index=False)
         # read in csv
@@ -767,6 +805,9 @@ class VGCqbCommunicator():
         pdfkit.from_file(html_file2, fName, options=pdf_options)
 
         # Email Claim Summary Report
+        statusText = f'\r\nEmailing Claim Payment Summary report...'
+        self.updateStatusText(statusText)
+
         to = ['jared@visualgap.com']
         sub = f'Claim Payment Summary {self.now.strftime("%Y-%m-%d")}'
         msg_html = '''
@@ -799,6 +840,8 @@ class VGCqbCommunicator():
         scc_df = pd.DataFrame(columns = scc_cols) 
 
         # Get SCC claims
+        statusText = f'\r\nCreating SCC claim data file...'
+        self.updateStatusText(statusText)
         scc_rpt_df = df[['rtbp_id', 'claim_id', 'amount', 'check_nbr', 'Claim_Type']].loc[(df['toVGC'] == 1) & (df['carrier_id'] == 8)].copy()
 
         # format amount without $, commas, and decimals
@@ -889,6 +932,8 @@ class VGCqbCommunicator():
                 scc_file_df = scc_file_df.append(temp_df)
 
         # fill each field has an exact starting position
+        statusText = f'\r\nFormatting SCC claim data file...'
+        self.updateStatusText(statusText)
         #A
         scc_file_df[0] = scc_file_df[0].str.pad(2, side='right', fillchar=' ')
         #B
@@ -973,6 +1018,9 @@ class VGCqbCommunicator():
         scc_file_df[40] = scc_file_df[40].str.pad(8, side='left', fillchar='0')
 
         # write text file
+        statusText = f'\r\nSaving SCC claim data file...'
+        self.updateStatusText(statusText)
+
         with open(self.attachment_dir + 'FrostGAP.txt', 'a') as f:
             for index, row in scc_file_df.iterrows():
                 col_index = 0
@@ -983,6 +1031,9 @@ class VGCqbCommunicator():
         f.close()
 
         # Disable host key checking
+        statusText = f'\r\nSending SCC claim data file via SFTP...'
+        self.updateStatusText(statusText)
+
         cnopts = pysftp.CnOpts()
         cnopts.hostkeys = None
 
@@ -1014,6 +1065,9 @@ class VGCqbCommunicator():
         self.send_email(to, sub, msg_html)
 
         # update toVGC to 3
+        statusText = f'\r\nUpdating payment status...'
+        self.updateStatusText(statusText)
+
         if len(df) > 0:
             for index, row in df.iterrows():
                 err_sql = '''
@@ -1031,6 +1085,8 @@ class VGCqbCommunicator():
         for ext in file_ext:
             self.clear_dir(self.file_staging_dir, ext)
 
+        statusText = f'\r\nComplete!'
+        self.updateStatusText(statusText)
 
     def vgcToQb(self):
         # Clear Output
@@ -1039,6 +1095,10 @@ class VGCqbCommunicator():
         # create batch_id
         # now = datetime.now()
         batch_id = self.now.strftime("%Y%m%d%H%M%S")
+
+        statusText = f'Collecting GAP claim records...'
+        self.updateStatusText(statusText)
+
 
         # sql query for GAP claims that are RTBP
         sql_file = '''
@@ -1077,6 +1137,9 @@ class VGCqbCommunicator():
         df_cols = ['claim_id', 'claim_nbr', 'carrier_id', 'lender_name', 'dealer_securityId', 'contact', 'address1', 'city', 'state', 'zip', 
                                     'pymt_method', 'first', 'last', 'pymt_type_id', 'amount', 'acct_number', 'loss_date', 'email', 'email2']
         df.columns = df_cols
+
+        statusText = f'\r\nCollecting GAP Plus records...'
+        self.updateStatusText(statusText)
 
         # sql query for PLUS claims that are RTBP
         sql_file_plus = '''
@@ -1126,6 +1189,9 @@ class VGCqbCommunicator():
 
         # drop CUCode column
         df2.drop(columns=['CUCode'], inplace=True)
+
+        statusText = f'\r\nCollecting TotalRestart records...'
+        self.updateStatusText(statusText)
 
         # sql query for TotalRestart claims that are RTBP
         # manually entered carrier_id 12
@@ -1220,6 +1286,9 @@ class VGCqbCommunicator():
                             'acct_number', 'loss_date', 'email', 'email2']
         pymts_df.columns = pymts_df_cols
 
+        statusText = f'\r\nCollecting QB List IDs...'
+        self.updateStatusText(statusText)
+
         # sql query for expense accounts in DB
         sql_file4 = '''
             SELECT carrier_id, qb_fullname
@@ -1253,6 +1322,9 @@ class VGCqbCommunicator():
 
         # Merge checking account name into df
         pymts_df = pymts_df.merge(checking_df, how='left', left_on='carrier_id', right_on='carrier_id').copy()
+
+        statusText = f'\r\nChecking records for errors...'
+        self.updateStatusText(statusText)
 
         # Create Error DF
         error_df = pd.DataFrame(columns = ['rtbp_id', 'err_msg'])
@@ -1292,6 +1364,9 @@ class VGCqbCommunicator():
         scc_df.set_index('claim_id', inplace=True)
         scc_df[['contractId', 'policy_nbr']] = ['','']
 
+        statusText = f'\r\nCollect Policy Number and Contract ID from VGC...'
+        self.updateStatusText(statusText)
+
         # add policy number and contract id to df
         if len(scc_df) > 0:
             for index, row in scc_df.iterrows():
@@ -1312,6 +1387,9 @@ class VGCqbCommunicator():
 
                 # Update scc_df with scc_p_c_df
                 scc_df.update(scc_p_c_df)
+
+        statusText = f'\r\nCheck for missing Policy Number and Contract IDs...'
+        self.updateStatusText(statusText)
 
         # check for missing policy number and/or contract id for SCC claims
         missing_p_c_df = scc_df.loc[(scc_df['contractId'] == '') | (scc_df['policy_nbr'] == '')]
@@ -1345,10 +1423,16 @@ class VGCqbCommunicator():
             self.send_email(to, sub, soup2)
 
             #exit script
+            statusText = f'\r\nThere are missing Policy Number(s) and/or Contract Id(s) in VGC\r\nAn email was sent with details\r\nProcess Cancelled.'
+
+            self.updateStatusText(statusText)
             sys.exit("Missing data from SCC claims.")
 
         # Check for missing QBlistID
         qbListId_error_df = pymts_df.loc[(pymts_df['QB_ListID'].isnull())]
+
+        statusText = f'\r\nChecking records for errors...'
+        self.updateStatusText(statusText)
 
         # add to Error DF
         if len(qbListId_error_df) > 0:
@@ -1388,6 +1472,9 @@ class VGCqbCommunicator():
         # payments greater than 0 df
         qb_pymts_df = pymts_df.loc[pymts_df['amount'] > 0].copy()
 
+        statusText = f'\r\nConnecting to QuickBooks...'
+        self.updateStatusText(statusText)
+
         # Connect to Quickbooks
         try:
             sessionManager = wc.Dispatch("QBXMLRP2.RequestProcessor")    
@@ -1397,10 +1484,32 @@ class VGCqbCommunicator():
             print('''
             Make sure QuickBooks is running and you are logged into the Company File.
             ERROR: {}'''.format(e))
-            sys.exit("Error with communicating with QuickBooks")
+
+            # create and record error messages in ready_to_be_paid DB and update toVGC = 2
+            for index, row in pymts_df.iterrows():
+                error_df.loc[error_df.shape[0]] = [row['rtbp_id'], 'Unable to connect to QuickBooks']
+
+            if len(error_df) > 0:
+                for index, row in error_df.iterrows():
+                    err_sql = '''
+                            UPDATE ready_to_be_paid
+                            SET toVGC = 2,
+                                err_msg = '{err_msg}'
+                            WHERE rtbp_id = {rtbp_id};
+                            '''.format(err_msg=row['err_msg'], rtbp_id=row['rtbp_id'])
+
+                    self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', err_sql, 0, 1)
+
+            statusText = f'\r\nThere was an ERROR connecting to QuickBooks.\r\n***Make sure QuickBooks desktop is open and you are logged into the correct Company file.***\r\nProcess Cancelled.'
+            self.updateStatusText(statusText)
+
+            return
 
         # create qbxml query to add payments to QB
         pay_date = f"{dt.date.today():%Y-%m-%d}"
+
+        statusText = f'\r\nRunning query...'
+        self.updateStatusText(statusText)
 
         for index, row in qb_pymts_df.iterrows():
             if row['payment_category_id'] == 1:
@@ -1499,7 +1608,7 @@ class VGCqbCommunicator():
                 </QBXML>'''.format(checking=row['checking'], lender_qbid=row['QB_ListID'], lender=row['lender_name'], date=pay_date, 
                         memo=f"{row['last']}/{row['first']} {pymt_type}", contact=row['contact'], address=row['address1'], city=row['city'], state=row['state'],
                         zip=row['zip'], expense=row['expense'], amount = pymtAmt)
-                
+
             # Send query and receive response
             responseString = sessionManager.ProcessRequest(ticket, qbxmlQuery)
 
@@ -1521,6 +1630,9 @@ class VGCqbCommunicator():
             self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', qb_sql_file, 0, 1)
 
         # Disconnect from Quickbooks
+        statusText = f'\r\nDisconnecting from Quickbooks...'
+        self.updateStatusText(statusText)
+
         sessionManager.EndSession(ticket)
         sessionManager.CloseConnection()
 
@@ -1534,6 +1646,9 @@ class VGCqbCommunicator():
             
             # execute and commit sql
             self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', zero_sql_file, 0, 1)
+
+        statusText = f'\r\nCollecting Fraud Language...'
+        self.updateStatusText(statusText)
 
         # Add Fraud Language fields to pymts_df
         sql_file7 = '''
@@ -1560,6 +1675,9 @@ class VGCqbCommunicator():
         pymts_df.rename(columns = {'amount':'payment_amount', 'lender_name':'alt_name'}, inplace = True)
 
         ##### CREATE GAP LETTERS #####
+
+        statusText = f'\r\nCreating GAP Letters and Calculations...'
+        self.updateStatusText(statusText)
 
         # Collect GAP payments
         gap_pymts_df = pymts_df.loc[pymts_df['payment_category_id'] == 1].copy()
@@ -1768,6 +1886,9 @@ class VGCqbCommunicator():
 
         ##### CREATE PLUS LETTERS #####
 
+        statusText = f'\r\nCreating GAP Plus Letters...'
+        self.updateStatusText(statusText)
+
         # Collect GAP Plus
         plus_pymts_df = pymts_df.loc[pymts_df['payment_category_id'] == 2].copy()
         plus_letters_df = plus_pymts_df.loc[plus_pymts_df['payment_amount'] > 0].copy()
@@ -1823,6 +1944,9 @@ class VGCqbCommunicator():
         self.update_tovgc_1(plus_df)
 
         ##### CREATE TOTALRESTART LETTERS #####
+
+        statusText = f'\r\nCreating TotalRestart Letters and Calculations...'
+        self.updateStatusText(statusText)
 
         # Collect GAP Plus
         tr_pymts_df = pymts_df.loc[pymts_df['payment_category_id'] == 3].copy()
@@ -2006,6 +2130,9 @@ class VGCqbCommunicator():
         self.update_tovgc_1(tr_df)
 
         ##### GAP CLAIMS PAID VIA ACH AND $0 CLAIMS #####
+
+        statusText = f'\r\nCreating and emailing GAP Letters and Calculations for $0 and claim paid via ACH...'
+        self.updateStatusText(statusText)
 
         # GAP Claims paid via ACH and $0 Claims
         ach_0_df = gap_pymts_df.loc[(gap_pymts_df['payment_amount'] <= 0) | (gap_pymts_df['pymt_method'].str.contains('ACH'))].copy()
@@ -2214,6 +2341,9 @@ class VGCqbCommunicator():
         # Update toVGC to 1
         self.update_tovgc_1(ach_0_df)
 
+        statusText = f'\r\nCreating and emailing GAP Plus Letters paid via ACH...'
+        self.updateStatusText(statusText)
+
         # Plus Claims paid via ACH and $0 Claims
         ach_plus_df = pymts_df.loc[(pymts_df['payment_category_id'] == 2) & ((pymts_df['payment_amount'] <= 0) | (pymts_df['pymt_method'].str.contains('ACH')))].copy()
 
@@ -2305,7 +2435,10 @@ class VGCqbCommunicator():
         # Update toVGC to 1
         self.update_tovgc_1(ach_plus_df)
 
-        # Plus Claims paid via ACH and $0 Claims
+        statusText = f'\r\nCreating and emailing TotalRestart Letters and Calculations for $0 and paid via ACH...'
+        self.updateStatusText(statusText)
+
+        # TR Claims paid via ACH and $0 Claims
         tr_ach_0_df = pymts_df.loc[(pymts_df['payment_category_id'] == 3) & ((pymts_df['payment_amount'] <= 0) | (pymts_df['pymt_method'].str.contains('ACH')))].copy()
 
         # Remove files from staging directory
@@ -2495,6 +2628,11 @@ class VGCqbCommunicator():
 
         # Update toVGC to 1
         self.update_tovgc_1(tr_ach_0_df)
+        statusText = f'\r\nUpdating payment status...'
+        self.updateStatusText(statusText)
+
+        statusText = f'\r\nComplete!'
+        self.updateStatusText(statusText)
 
     def qbCustomers(self):
         # Clear Output
@@ -2504,9 +2642,19 @@ class VGCqbCommunicator():
         statusText = f'Connecting to Quickbooks...'
         self.updateStatusText(statusText)
 
-        sessionManager = wc.Dispatch("QBXMLRP2.RequestProcessor")    
-        sessionManager.OpenConnection('', 'Claim Payments')
-        ticket = sessionManager.BeginSession("", 2)
+        try:
+            sessionManager = wc.Dispatch("QBXMLRP2.RequestProcessor")    
+            sessionManager.OpenConnection('', 'Claim Payments')
+            ticket = sessionManager.BeginSession("", 2)
+        except Exception as e:
+            print('''
+            Make sure to print checks and process ACH in Quickbooks prior to starting this process.
+            ERROR: {}'''.format(e))
+
+            statusText = f'\r\nThere was an ERROR connecting to QuickBooks.\r\n***Make sure QuickBooks desktop is open and you are logged into the correct Company file.***\r\nProcess Cancelled.'
+            self.updateStatusText(statusText)
+
+            return
 
         # create qbxml query
         qbxmlQuery = '''
@@ -2569,10 +2717,19 @@ class VGCqbCommunicator():
         # Connect to Quickbooks
         statusText = f'Connecting to Quickbooks...'
         self.updateStatusText(statusText)
+        try:
+            sessionManager = wc.Dispatch("QBXMLRP2.RequestProcessor")    
+            sessionManager.OpenConnection('', 'Claim Payments')
+            ticket = sessionManager.BeginSession("", 2)
+        except Exception as e:
+            print('''
+            Make sure to print checks and process ACH in Quickbooks prior to starting this process.
+            ERROR: {}'''.format(e))
 
-        sessionManager = wc.Dispatch("QBXMLRP2.RequestProcessor")    
-        sessionManager.OpenConnection('', 'Claim Payments')
-        ticket = sessionManager.BeginSession("", 2)
+            statusText = f'\r\nThere was an ERROR connecting to QuickBooks.\r\n***Make sure QuickBooks desktop is open and you are logged into the correct Company file.***\r\nProcess Cancelled.'
+            self.updateStatusText(statusText)
+
+            return
 
         # create qbxml query
         qbxmlQuery = '''
