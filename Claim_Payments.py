@@ -34,10 +34,10 @@ class VGCqbCommunicator():
     def __init__(self):
         # Create GUI Windows
         window = Tk()
-        window.geometry("600x600")
+        window.geometry("600x610")
         window.title("Claim Payments")
         window.configure(background='#696773')
-        window.iconbitmap('./images/Frostlogo_icon_32.ico')
+        window.iconbitmap('./images/claim_payments.ico')
 
         # Title label
         Label (window, text='Claim Payments', bg='#696773', fg='#ececee', font=('Book Antiqua', 30, 'bold')) .grid(row=0, column=0, columnspan=4, padx = 30, pady = 10, sticky=W)
@@ -48,6 +48,9 @@ class VGCqbCommunicator():
 
         # Status label
         Label (window, text='Status:', bg='#696773', fg='#ececee', font=('Book Antiqua', 13, 'bold')) .grid(row=1, column=0, padx = 10, pady = 5, sticky=W)
+
+        # version label
+        Label (window, text='v 1.0.0', bg='#696773', fg='#ececee', font=('Book Antiqua', 8)) .grid(row=7, column=0, padx = 10, pady = 5, sticky=W)
 
         # Status Scrolled text
         self.output = st.ScrolledText(window, width = 70, height = 8, wrap=WORD, background='#363946', fg='#ed9511', font=('Book Antiqua', 12, 'bold'))
