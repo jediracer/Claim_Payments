@@ -49,7 +49,7 @@ class VGCqbCommunicator():
         # Status label
         Label (window, text='Status:', bg='#696773', fg='#ececee', font=('Book Antiqua', 13, 'bold')) .grid(row=1, column=0, padx = 10, pady = 5, sticky=W)
 
-        # version label
+        # Version label
         Label (window, text='v 1.0.0', bg='#696773', fg='#ececee', font=('Book Antiqua', 8)) .grid(row=7, column=0, padx = 10, pady = 5, sticky=W)
 
         # Status Scrolled text
@@ -563,7 +563,17 @@ class VGCqbCommunicator():
                         '''.format(rtbp_id=row['rtbp_id'])
 
                 # connect to claim_qb_payments db
-                self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', err_sql, 0, 1)
+                try:
+                    self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', err_sql, 0, 1)
+                except Exception as e:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
     #===========================
     #    QB FUNCTIONS
@@ -662,7 +672,18 @@ class VGCqbCommunicator():
                             WHERE rtbp_id = {rowID};'''.format(ChkNbr=chkNbr, rowID=row['rtbp_id'])
                 
                 # execute and commit sql
-                self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', qb_sql_file, 0, 1)
+                try:
+                    self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', qb_sql_file, 0, 1)
+                except:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return 
+
         except Exception as e:
             print('''
             Make sure to print checks and process ACH in Quickbooks prior to starting this process.
@@ -695,7 +716,17 @@ class VGCqbCommunicator():
         statusText = f'\r\nCollecting claim payment data...'
         self.updateStatusText(statusText)
 
-        df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql, 0, 0))
+        try:
+            df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql, 0, 0))
+        except:
+            print('''
+            There was a problem connecting to the claim_qb_payments database.
+            ERROR: {}'''.format(e))
+
+            statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+            self.updateStatusText(statusText)
+
+            return
 
         # add column names
         df_cols = ['rtbp_id', 'claim_id', 'claim_nbr', 'carrier_id', 'lender_name', 'pymt_method', 'first', 'last', 'pymt_type_id', 'amount', 'payment_category_id', 'check_nbr', 'qb_txnid', 'pymt_date', 'toVGC', 'err_msg']
@@ -707,7 +738,17 @@ class VGCqbCommunicator():
             FROM carriers;
             '''
         # save query results as DF
-        carrier_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql, 0, 0))
+        try:
+            carrier_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql, 0, 0))
+        except:
+            print('''
+            There was a problem connecting to the visualgap_claims database.
+            ERROR: {}'''.format(e))
+
+            statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+            self.updateStatusText(statusText)
+
+            return
 
         col_names = ['carrier_id', 'carrier']
         carrier_df.columns = col_names
@@ -931,7 +972,18 @@ class VGCqbCommunicator():
                     WHERE c.claim_id = {claimId};
                     '''.format(claimId=row['claim_id'], amt=row['amount'], chk=check, pay_code=p_code, paid_plus=paid_or_plus, check_nbr=chk_num)
 
-                temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql, 0, 0))    
+                try:
+                    temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql, 0, 0))    
+                except:
+                    print('''
+                    There was a problem connecting to the visualgap_claims database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
+
                 scc_file_df = scc_file_df.append(temp_df)
 
         # fill each field has an exact starting position
@@ -1078,8 +1130,19 @@ class VGCqbCommunicator():
                         SET toVGC = 3
                         WHERE rtbp_id = {rtbp_id};
                         '''.format(rtbp_id=row['rtbp_id'])
-                # run update query        
-                self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', err_sql, 0, 1)
+                # run update query 
+
+                try:       
+                    self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', err_sql, 0, 1)
+                except:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         # Remove files from staging directory
         file_ext = [".csv", ".html"]
@@ -1134,7 +1197,17 @@ class VGCqbCommunicator():
                     '''
 
         # save query results as DF
-        df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file, 0, 0))
+        try:
+            df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file, 0, 0))
+        except:
+                    print('''
+                    There was a problem connecting to the visualgap_claims database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         # add column names
         df_cols = ['claim_id', 'claim_nbr', 'carrier_id', 'lender_name', 'dealer_securityId', 'contact', 'address1', 'city', 'state', 'zip', 
@@ -1170,7 +1243,17 @@ class VGCqbCommunicator():
                     '''
         
         # save query results as DF
-        df2 = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file_plus, 0, 0))
+        try:
+            df2 = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file_plus, 0, 0))
+        except:
+                    print('''
+                    There was a problem connecting to the visualgap_claims database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         # add column names
         df2_cols = ['claim_id', 'claim_nbr', 'carrier_id', 'lender_name', 'dealer_securityId', 'contact', 'address1', 'city', 'state', 'zip', 
@@ -1216,7 +1299,17 @@ class VGCqbCommunicator():
                     '''
         
         # save query results as DF
-        df3 = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file_tr, 0, 0))
+        try:
+            df3 = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file_tr, 0, 0))
+        except:
+                    print('''
+                    There was a problem connecting to the visualgap_claims database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         # add column names
         df3_cols = ['claim_id', 'claim_nbr', 'carrier_id', 'lender_name', 'dealer_securityId', 'contact', 'address1', 'city', 'state', 'zip', 
@@ -1238,7 +1331,17 @@ class VGCqbCommunicator():
                         amount = rows['amount'], acct_nbr = rows['acct_number'], loss_date = rows['loss_date'], email= rows['email'], email2= rows['email2'], batchId = batch_id)
             
             # # execute and commit sql
-            self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file2, 0, 1)
+            try:
+                self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file2, 0, 1)
+            except:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         # PLUS
         # convert columns list to string
@@ -1254,7 +1357,17 @@ class VGCqbCommunicator():
                         amount = rows['amount'], acct_nbr = rows['acct_number'], loss_date = rows['loss_date'], email= rows['email'], email2= rows['email2'], batchId = batch_id)
                 
             # execute and commit sql
-            self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file2_plus, 0, 1)
+            try:
+                self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file2_plus, 0, 1)
+            except:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         # TOTALRESTART
         # convert columns list to string
@@ -1270,7 +1383,17 @@ class VGCqbCommunicator():
                         amount = rows['amount'], acct_nbr = rows['acct_number'], loss_date = rows['loss_date'], email= rows['email'], email2= rows['email2'], batchId = batch_id)
                 
             # execute and commit sql
-            self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file2_tr, 0, 1)
+            try:
+                self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file2_tr, 0, 1)
+            except:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         # create select query to pull current batch with ID
         sql_file3 = '''SELECT rtbp_id, claim_id, claim_nbr, carrier_id, lender_name, dealer_securityId, contact, address1, city, 
@@ -1281,7 +1404,17 @@ class VGCqbCommunicator():
                     ORDER BY payment_category_id, claim_id;'''.format(batchId = batch_id)
 
         # save query results as DF
-        pymts_df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file3, 0, 0))
+        try:
+            pymts_df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file3, 0, 0))
+        except:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         # add column names
         pymts_df_cols = ['rtbp_id', 'claim_id', 'claim_nbr', 'carrier_id', 'lender_name', 'dealer_securityId', 'contact', 'address1', 'city', 'state', 'zip', 
@@ -1300,7 +1433,17 @@ class VGCqbCommunicator():
             '''
 
         # save query results as DF
-        expense_df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file4, 0, 0))
+        try:
+            expense_df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file4, 0, 0))
+        except:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         # add column names to DF
         col_names = ['carrier_id', 'expense']
@@ -1314,7 +1457,17 @@ class VGCqbCommunicator():
             '''
 
         # save query results as DF
-        checking_df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file5, 0, 0))
+        try:
+            checking_df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file5, 0, 0))
+        except:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         # add column names to DF
         col_names = ['carrier_id', 'checking']
@@ -1382,7 +1535,17 @@ class VGCqbCommunicator():
                     '''.format(claimId = index)
                 
                 # run sql query
-                scc_p_c_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql, 0, 0))
+                try:
+                    scc_p_c_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql, 0, 0))
+                except:
+                    print('''
+                    There was a problem connecting to the visualgap_claims database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
                 cols = ['claim_id', 'contractId', 'policy_nbr']
                 scc_p_c_df.columns = cols
@@ -1464,7 +1627,17 @@ class VGCqbCommunicator():
             '''
 
         # save query results as DF
-        carrier_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file6, 0, 0))
+        try:
+            carrier_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file6, 0, 0))
+        except:
+                    print('''
+                    There was a problem connecting to the visualgap_claims database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         col_names = ['carrier_id', 'carrier']
         carrier_df.columns = col_names
@@ -1500,8 +1673,18 @@ class VGCqbCommunicator():
                                 err_msg = '{err_msg}'
                             WHERE rtbp_id = {rtbp_id};
                             '''.format(err_msg=row['err_msg'], rtbp_id=row['rtbp_id'])
+                    
+                    try:
+                        self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', err_sql, 0, 1)
+                    except:
+                        print('''
+                        There was a problem connecting to the claim_qb_payments database.
+                        ERROR: {}'''.format(e))
 
-                    self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', err_sql, 0, 1)
+                        statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                        self.updateStatusText(statusText)
+
+                    return
 
             statusText = f'\r\nThere was an ERROR connecting to QuickBooks.\r\n***Make sure QuickBooks desktop is open and you are logged into the correct Company file.***\r\nProcess Cancelled.'
             self.updateStatusText(statusText)
@@ -1630,7 +1813,17 @@ class VGCqbCommunicator():
                         WHERE rtbp_id = {rowID};'''.format(TxnID=txnId, paydate=pay_date, rowID=row['rtbp_id'])
             
             # execute and commit sql
-            self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', qb_sql_file, 0, 1)
+            try:
+                self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', qb_sql_file, 0, 1)
+            except:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         # Disconnect from Quickbooks
         statusText = f'\r\nDisconnecting from Quickbooks...'
@@ -1648,7 +1841,17 @@ class VGCqbCommunicator():
                         WHERE rtbp_id = {rowID};'''.format(paydate=pay_date, rowID=row['rtbp_id'])
             
             # execute and commit sql
-            self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', zero_sql_file, 0, 1)
+            try:
+                self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', zero_sql_file, 0, 1)
+            except:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         statusText = f'\r\nCollecting Fraud Language...'
         self.updateStatusText(statusText)
@@ -1663,7 +1866,17 @@ class VGCqbCommunicator():
             '''
 
         # run sql query
-        fraud_lang_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file7, 0, 0))
+        try:
+            fraud_lang_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file7, 0, 0))
+        except:
+            print('''
+            There was a problem connecting to the visualgap_claims database.
+            ERROR: {}'''.format(e))
+
+            statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+            self.updateStatusText(statusText)
+
+            return
 
         col_names = ['StateId', 'StateDesc', 'StateCode', 'f_lang']
         fraud_lang_df.columns = col_names
@@ -1850,7 +2063,17 @@ class VGCqbCommunicator():
                                 WHERE c.claim_id = {claimID};'''.format(claimID = cal)
 
                         # save query results as DF
-                        c_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', c_sql_query, 0, 0))
+                        try:
+                            c_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', c_sql_query, 0, 0))
+                        except:
+                            print('''
+                            There was a problem connecting to the visualgap_claims database.
+                            ERROR: {}'''.format(e))
+
+                            statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+                            self.updateStatusText(statusText)
+
+                            return
 
                         # append query result to c_template_df
                         c_consolidate_df = c_consolidate_df.append(c_temp_df)
@@ -2098,7 +2321,17 @@ class VGCqbCommunicator():
                                 WHERE c.claim_id = {claimID};'''.format(claimID = tr_cal)
 
                         # save query results as DF
-                        tr_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', tr_sql_query, 0, 0))
+                        try:
+                            tr_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', tr_sql_query, 0, 0))
+                        except:
+                            print('''
+                            There was a problem connecting to the visualgap_claims database.
+                            ERROR: {}'''.format(e))
+
+                            statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+                            self.updateStatusText(statusText)
+
+                            return
 
                         # append query result to c_template_df
                         tr_consolidate_df = tr_consolidate_df.append(tr_temp_df)
@@ -2253,7 +2486,17 @@ class VGCqbCommunicator():
                 WHERE c.claim_id = {claimID};'''.format(claimID = row['claim_id'])
 
                 # # save query results as DF
-                c_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', c_sql_query, 0, 0))
+                try:
+                    c_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', c_sql_query, 0, 0))
+                except:
+                    print('''
+                    There was a problem connecting to the visualgap_claims database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
                 # append query result to c_template_df
                 c_consolidate_df = c_consolidate_df.append(c_temp_df)
@@ -2542,7 +2785,17 @@ class VGCqbCommunicator():
                         WHERE c.claim_id = {claimID};'''.format(claimID = row['claim_id'])
 
                 # # save query results as DF
-                c_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', c_sql_query, 0, 0))
+                try:
+                    c_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', c_sql_query, 0, 0))
+                except:
+                    print('''
+                    There was a problem connecting to the visualgap_claims database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the visualgap_claims database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
                 # append query result to c_template_df
                 c_consolidate_df = c_consolidate_df.append(c_temp_df)
@@ -2707,9 +2960,30 @@ class VGCqbCommunicator():
         self.updateStatusText(statusText)
 
         # display df
-        print(currentCustomerDF)
-        #currentCustomerDF.to_csv('qbCustomersself.output.csv',header=True,index=False)
+        # print(currentCustomerDF)
+
+        # export new qb customer list
+        qb_cust = 'NewqbCustomers.csv'
+        currentCustomerDF.to_csv(self.attachment_dir + qb_cust,header=True,index=False)
         # self.output.configure(state ='normal')
+
+        # email new qb customers
+        msg_html = '''
+            <html>
+            <body>
+                <p>Attached is are new customers in QuickBooks.<br>
+                <br>
+                Thank you, <br>
+                Claims Department <br>
+                <br>
+                <b>Frost Financial Services, Inc. | VisualGAP <br>
+                Claims Department <br>
+                Phone: 888-753-7678 Option 3</b>
+                </p>
+            </body>
+            </html>
+        '''
+        self.send_email('jared@visualgap.com', 'New QB Customers', msg_html, self.attachment_dir, qb_cust)
         statusText = f'\r\nComplete!'
         self.updateStatusText(statusText)
 
@@ -2774,15 +3048,6 @@ class VGCqbCommunicator():
             # add to dataframe
             currentAccountDF = currentAccountDF.append({'qb_listid': accountListID, 'qb_fullname': accountName}, ignore_index=True)
 
-        # connect to DB
-        statusText = f'\r\nConnecting to MySQL database...'
-        self.updateStatusText(statusText)
-
-        cnx = mc.connect(user=mysql_u, password=mysql_pw,
-                        host=mysql_host,
-                        database='claim_qb_payments')
-        cursor = cnx.cursor()
-
         # sql query for all accounts in DB
         statusText = f'\r\nRunning SQL query...'
         self.updateStatusText(statusText)
@@ -2792,10 +3057,18 @@ class VGCqbCommunicator():
             FROM qb_accounts;
             '''
 
-        # execute sql
-        cursor.execute(sql_file)
-        # save query results as DF
-        df = pd.DataFrame(cursor.fetchall())
+        # execute and commit sql
+        try:
+            df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file, 0, 0))
+        except:
+            print('''
+            There was a problem connecting to the claim_qb_payments database.
+            ERROR: {}'''.format(e))
+
+            statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+            self.updateStatusText(statusText)
+
+            return 
 
         # add column names to DF
         col_names = ['qb_listid', 'qb_fullname']
@@ -2835,19 +3108,21 @@ class VGCqbCommunicator():
                 sql = f"INSERT INTO qb_accounts ({cols}) VALUES ({rows['carrier_id']}, '{rows['qb_listid']}', '{rows['qb_fullname']}', '{rows['account_type']}');" 
 
                 # execute and commit sql
-                cursor.execute(sql)
-                cnx.commit()
+                try:
+                    self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql, 0, 1)
+                except:
+                    print('''
+                    There was a problem connecting to the claim_qb_payments database.
+                    ERROR: {}'''.format(e))
+
+                    statusText = f'\r\nERROR: There was a problem connecting to the claim_qb_payments database.\r\nProcess Cancelled.'
+                    self.updateStatusText(statusText)
+
+                    return
 
         else:
             statusText = f'\r\nNo new accounts found...'
             self.updateStatusText(statusText)
-    
-        # close mysql connection
-        statusText = f'\r\nClosing MySQL connection...'
-        self.updateStatusText(statusText)
-
-        cursor.close()
-        cnx.close()
 
         statusText = f'\r\nComplete!'
         self.updateStatusText(statusText)
