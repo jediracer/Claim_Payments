@@ -6,8 +6,8 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{E6891CD3-E9FA-4A74-96EA-6E505F2A390F}
 AppName=Claim Payments
-AppVersion=1.0
-;AppVerName=Claim Payments 1.0
+AppVersion=1.0.0
+;AppVerName=Claim Payments 1.0.0
 AppPublisher=Jared Behler
 AppPublisherURL=https://github.com/jediracer/Claim_Payments
 AppSupportURL=https://github.com/jediracer/Claim_Payments
@@ -24,6 +24,8 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 ChangesEnvironment=yes
+WizardImageFile=C:\Users\jbehler\python\Claim_Payments\images\Frost_logo.bmp
+WizardImageStretch=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -147,14 +149,11 @@ Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\win32com\*";
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\zmq\*"; DestDir: "{app}\zmq"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\html\*"; DestDir: "{app}\html"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\images\*"; DestDir: "{app}\images"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "C:\Users\jbehler\python\packages\poppler-21.03.0\*"; DestDir: "{app}\packages"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\jbehler\python\packages\poppler-21.03.0\*"; DestDir: "{app}\packages\poppler-21.03.0"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\jbehler\Anaconda3\envs\pyfrost32-dev\Lib\site-packages\wkhtmltopdf\*"; DestDir: "{app}\packages\wkhtmltopdf"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\letters\*"; DestDir: "{app}\letters"; Flags: ignoreversion recursesubdirs createallsubdirs; Permissions: users-modify
+Source: "C:\Users\jbehler\python\Claim_Payments\letters\staging*"; DestDir: "C:\ProgramData\Claim_Payments\letters"; Flags: ignoreversion recursesubdirs createallsubdirs; Permissions: users-modify
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-
-[Registry]
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
-    ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}\packages\poppler-21.03.0\Library\bin"; \
-    Check: NeedsAddPath('{app}\packages\poppler-21.03.0\Library\bin')
 
 [Code]
 function NeedsAddPath(Param: string): boolean;
@@ -172,6 +171,15 @@ begin
   { Pos() returns 0 if not found }
   Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
 end;
+
+[Registry]
+
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};C:\Program Files (x86)\Claim Payments\packages\poppler-21.03.0\Library\bin"; \
+    Check: NeedsAddPath('C:\Program Files (x86)\Claim Payments\packages\poppler-21.03.0\Library\bin')
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};C:\Program Files (x86)\Claim Payments\packages\wkhtmltopdf\bin"; \
+    Check: NeedsAddPath('C:\Program Files (x86)\Claim Payments\packages\wkhtmltopdf\bin')
 
 [Icons]
 Name: "{autoprograms}\Claim Payments"; Filename: "{app}\Claim_Payments.exe"
