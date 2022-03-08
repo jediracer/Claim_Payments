@@ -90,7 +90,7 @@ class VGCqbCommunicator():
 
         # Define directories
         self.attachment_dir = 'S:/claims/letters/attachment/'
-        self.file_staging_dir = './letters/staging/'
+        self.file_staging_dir = 'C:/ProgramData/Claim_Payments/letters/staging/'
         # get current date
         self.now = datetime.now()
 
@@ -179,7 +179,7 @@ class VGCqbCommunicator():
 
     # PDF Concatenation Function
     def ConCat_pdf (self, file_list, outfn):
-        letter_path = './letters/staging/'
+        letter_path = self.file_staging_dir
         writer = PdfWriter()
         for inputfn in file_list:
             writer.addpages(PdfReader(letter_path + inputfn).pages)
@@ -271,7 +271,7 @@ class VGCqbCommunicator():
 
     # GAP Letter Function
     def gap_letter(self, template_df, pdf_template, position):
-        gap_path = './letters/staging/'
+        gap_path = self.file_staging_dir
 
         template_df['payment_amount'] = template_df['payment_amount'].map('${:,.2f}'.format)
         template_df['loss_date'] = pd.to_datetime(template_df['loss_date']).dt.strftime('%B %d, %Y')
@@ -309,15 +309,15 @@ class VGCqbCommunicator():
             self.fill_pdf(pdf_template, output_path_fn, data_dict)
 
             # Set File Paths
-            flat_output = f"{os.path.dirname(os.path.abspath(output_file))}\{gap_path}\{output_file}"
-            img_file = f"{os.path.dirname(os.path.abspath(output_file))}\{gap_path}\{template_df.loc[index]['claim_nbr']}-{position}"
+            flat_output = f"{gap_path}\{output_file}"
+            img_file = f"{gap_path}\{template_df.loc[index]['claim_nbr']}-{position}"
 
             # Flatten pdf using flatten_pdf function
             self.flatten_pdf(flat_output, img_file) 
 
     # GAP Calculation Function
     def calculations(self, template_df, pdf_template, position):
-        gap_path = './letters/staging/'
+        gap_path = self.file_staging_dir
 
         template_df['loss_date'] = pd.to_datetime(template_df['loss_date']).dt.strftime('%B %d, %Y')
         template_df['last_payment'] = pd.to_datetime(template_df['last_payment']).dt.strftime('%B %d, %Y')  
@@ -411,8 +411,8 @@ class VGCqbCommunicator():
             self.fill_pdf(pdf_template, output_path_fn, data_dict)
 
             # Set File Paths
-            flat_output = f"{os.path.dirname(os.path.abspath(output_file))}\{gap_path}\{output_file}"
-            img_file = f"{os.path.dirname(os.path.abspath(output_file))}\{gap_path}\{template_df.loc[index]['claim_nbr']}-{position}"
+            flat_output = f"{gap_path}\{output_file}"
+            img_file = f"{gap_path}\{template_df.loc[index]['claim_nbr']}-{position}"
 
             # Flatten pdf using flatten_pdf function
             self.flatten_pdf(flat_output, img_file)
@@ -437,7 +437,7 @@ class VGCqbCommunicator():
 
     # TotalRestart Calculation Function
     def tr_calculations(self, template_df, pdf_template, position):
-        gap_path = './letters/staging/'
+        gap_path = self.file_staging_dir
 
         template_df['loss_date'] = pd.to_datetime(template_df['loss_date']).dt.strftime('%B %d, %Y')
         template_df['incp_date'] = pd.to_datetime(template_df['incp_date']).dt.strftime('%B %d, %Y')
@@ -502,8 +502,8 @@ class VGCqbCommunicator():
             self.fill_pdf(pdf_template, output_path_fn, data_dict)
 
             # Set File Paths
-            flat_output = f"{os.path.dirname(os.path.abspath(output_file))}\{gap_path}\{output_file}"
-            img_file = f"{os.path.dirname(os.path.abspath(output_file))}\{gap_path}\{template_df.loc[index]['claim_nbr']}-{position}"
+            flat_output = f"{gap_path}\{output_file}"
+            img_file = f"{gap_path}\{template_df.loc[index]['claim_nbr']}-{position}"
 
             # Flatten pdf using flatten_pdf function
             self.flatten_pdf(flat_output, img_file)
@@ -590,7 +590,7 @@ class VGCqbCommunicator():
         csv_file = f'{self.file_staging_dir}final_rpt.csv'
         err_csv_file = f'{self.file_staging_dir}error.csv'
         template_file = './html/pymt_summary_template.html'
-        html_file2 = './letters/staging/Claims_Paid.html'
+        html_file2 = f'{self.file_staging_dir}Claims_Paid.html'
 
         # sql query to collect qb_txnid's
         sql = '''
@@ -674,7 +674,7 @@ class VGCqbCommunicator():
                 # execute and commit sql
                 try:
                     self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', qb_sql_file, 0, 1)
-                except:
+                except Exception as e:
                     print('''
                     There was a problem connecting to the claim_qb_payments database.
                     ERROR: {}'''.format(e))
@@ -718,7 +718,7 @@ class VGCqbCommunicator():
 
         try:
             df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql, 0, 0))
-        except:
+        except Exception as e:
             print('''
             There was a problem connecting to the claim_qb_payments database.
             ERROR: {}'''.format(e))
@@ -740,7 +740,7 @@ class VGCqbCommunicator():
         # save query results as DF
         try:
             carrier_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql, 0, 0))
-        except:
+        except Exception as e:
             print('''
             There was a problem connecting to the visualgap_claims database.
             ERROR: {}'''.format(e))
@@ -974,7 +974,7 @@ class VGCqbCommunicator():
 
                 try:
                     temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql, 0, 0))    
-                except:
+                except Exception as e:
                     print('''
                     There was a problem connecting to the visualgap_claims database.
                     ERROR: {}'''.format(e))
@@ -1134,7 +1134,7 @@ class VGCqbCommunicator():
 
                 try:       
                     self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', err_sql, 0, 1)
-                except:
+                except Exception as e:
                     print('''
                     There was a problem connecting to the claim_qb_payments database.
                     ERROR: {}'''.format(e))
@@ -1146,7 +1146,6 @@ class VGCqbCommunicator():
 
         # Remove files from staging directory
         file_ext = [".csv", ".html"]
-        # file_staging_dir = './letters/staging/'
 
         for ext in file_ext:
             self.clear_dir(self.file_staging_dir, ext)
@@ -1159,12 +1158,10 @@ class VGCqbCommunicator():
         self.clearStatusText()
 
         # create batch_id
-        # now = datetime.now()
         batch_id = self.now.strftime("%Y%m%d%H%M%S")
 
         statusText = f'Collecting GAP claim records...'
         self.updateStatusText(statusText)
-
 
         # sql query for GAP claims that are RTBP
         sql_file = '''
@@ -1199,7 +1196,7 @@ class VGCqbCommunicator():
         # save query results as DF
         try:
             df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file, 0, 0))
-        except:
+        except Exception as e:
                     print('''
                     There was a problem connecting to the visualgap_claims database.
                     ERROR: {}'''.format(e))
@@ -1245,7 +1242,7 @@ class VGCqbCommunicator():
         # save query results as DF
         try:
             df2 = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file_plus, 0, 0))
-        except:
+        except Exception as e:
                     print('''
                     There was a problem connecting to the visualgap_claims database.
                     ERROR: {}'''.format(e))
@@ -1301,7 +1298,7 @@ class VGCqbCommunicator():
         # save query results as DF
         try:
             df3 = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file_tr, 0, 0))
-        except:
+        except Exception as e:
                     print('''
                     There was a problem connecting to the visualgap_claims database.
                     ERROR: {}'''.format(e))
@@ -1333,7 +1330,7 @@ class VGCqbCommunicator():
             # # execute and commit sql
             try:
                 self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file2, 0, 1)
-            except:
+            except Exception as e:
                     print('''
                     There was a problem connecting to the claim_qb_payments database.
                     ERROR: {}'''.format(e))
@@ -1359,7 +1356,7 @@ class VGCqbCommunicator():
             # execute and commit sql
             try:
                 self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file2_plus, 0, 1)
-            except:
+            except Exception as e:
                     print('''
                     There was a problem connecting to the claim_qb_payments database.
                     ERROR: {}'''.format(e))
@@ -1385,7 +1382,7 @@ class VGCqbCommunicator():
             # execute and commit sql
             try:
                 self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file2_tr, 0, 1)
-            except:
+            except Exception as e:
                     print('''
                     There was a problem connecting to the claim_qb_payments database.
                     ERROR: {}'''.format(e))
@@ -1435,7 +1432,7 @@ class VGCqbCommunicator():
         # save query results as DF
         try:
             expense_df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file4, 0, 0))
-        except:
+        except Exception as e:
                     print('''
                     There was a problem connecting to the claim_qb_payments database.
                     ERROR: {}'''.format(e))
@@ -1459,7 +1456,7 @@ class VGCqbCommunicator():
         # save query results as DF
         try:
             checking_df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file5, 0, 0))
-        except:
+        except Exception as e:
                     print('''
                     There was a problem connecting to the claim_qb_payments database.
                     ERROR: {}'''.format(e))
@@ -1497,15 +1494,25 @@ class VGCqbCommunicator():
                 error_df.loc[error_df.shape[0]] = [row['rtbp_id'], 'No matching CHECKING and-or EXPENSE accounts in QuickBooks'] 
 
         # Create sql server connection
-        cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER='+svr+';DATABASE='+db+';UID='+sql_u+';PWD='+ sql_pw)
+        try:
+            cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER='+svr+';DATABASE='+db+';UID='+sql_u+';PWD='+ sql_pw)
 
-        # create query
-        sql_svr_file = '''SELECT VGSecurityId, QB_ListID
-                        FROM business_entity
-                        WHERE QB_ListID IS NOT NULL;
-                    '''
-        # execute query
-        listid_df = pd.read_sql(sql_svr_file, cnxn)
+            # create query
+            sql_svr_file = '''SELECT VGSecurityId, QB_ListID
+                            FROM business_entity
+                            WHERE QB_ListID IS NOT NULL;
+                        '''
+            # execute query
+            listid_df = pd.read_sql(sql_svr_file, cnxn)
+        except Exception as e:
+            print('''
+            There was a problem connecting to the qb_temp database (.12).
+            ERROR: {}'''.format(e))
+
+            statusText = f'\r\nERROR: There was a problem connecting to the qb_temp database (.12).\r\nProcess Cancelled.'
+            self.updateStatusText(statusText)
+
+            return
 
         # TEMPORARY ########################################################################################
         # Convert test dealer_securityId to Production dealer_securityId
@@ -1537,7 +1544,7 @@ class VGCqbCommunicator():
                 # run sql query
                 try:
                     scc_p_c_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql, 0, 0))
-                except:
+                except Exception as e:
                     print('''
                     There was a problem connecting to the visualgap_claims database.
                     ERROR: {}'''.format(e))
@@ -1563,10 +1570,10 @@ class VGCqbCommunicator():
 
         # if any claims are missing policy and contract id, 1) create a report, 2) email the report & 3) exit script.
         if len(missing_p_c_df) > 0:
-            html_file = './letters/staging/missing_data.html'
-            csv_file = './letters/staging/missing_data.csv'
+            html_file = f'{self.file_staging_dir}missing_data.html'
+            csv_file = f'{self.file_staging_dir}missing_data.csv'
             template_file = './html/missing_data_template.html'
-            html_file2 = './letters/staging/missing_data.html'
+            html_file2 = f'{self.file_staging_dir}missing_data.html'
             # export df as csv
             missing_p_c_df.to_csv(csv_file)
             # read in csv
@@ -1629,7 +1636,7 @@ class VGCqbCommunicator():
         # save query results as DF
         try:
             carrier_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file6, 0, 0))
-        except:
+        except Exception as e:
                     print('''
                     There was a problem connecting to the visualgap_claims database.
                     ERROR: {}'''.format(e))
@@ -1676,7 +1683,7 @@ class VGCqbCommunicator():
                     
                     try:
                         self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', err_sql, 0, 1)
-                    except:
+                    except Exception as e:
                         print('''
                         There was a problem connecting to the claim_qb_payments database.
                         ERROR: {}'''.format(e))
@@ -1815,7 +1822,7 @@ class VGCqbCommunicator():
             # execute and commit sql
             try:
                 self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', qb_sql_file, 0, 1)
-            except:
+            except Exception as e:
                     print('''
                     There was a problem connecting to the claim_qb_payments database.
                     ERROR: {}'''.format(e))
@@ -1843,7 +1850,7 @@ class VGCqbCommunicator():
             # execute and commit sql
             try:
                 self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', zero_sql_file, 0, 1)
-            except:
+            except Exception as e:
                     print('''
                     There was a problem connecting to the claim_qb_payments database.
                     ERROR: {}'''.format(e))
@@ -1868,7 +1875,7 @@ class VGCqbCommunicator():
         # run sql query
         try:
             fraud_lang_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql_file7, 0, 0))
-        except:
+        except Exception as e:
             print('''
             There was a problem connecting to the visualgap_claims database.
             ERROR: {}'''.format(e))
@@ -1900,7 +1907,6 @@ class VGCqbCommunicator():
         gap_letters_df = gap_pymts_df.loc[gap_pymts_df['payment_amount'] > 0].copy()
 
         # Remove files from staging directory
-        # file_staging_dir = './letters/staging/'
         file_ext = ".pdf"
 
         self.clear_dir(self.file_staging_dir, file_ext)
@@ -2065,7 +2071,7 @@ class VGCqbCommunicator():
                         # save query results as DF
                         try:
                             c_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', c_sql_query, 0, 0))
-                        except:
+                        except Exception as e:
                             print('''
                             There was a problem connecting to the visualgap_claims database.
                             ERROR: {}'''.format(e))
@@ -2323,7 +2329,7 @@ class VGCqbCommunicator():
                         # save query results as DF
                         try:
                             tr_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', tr_sql_query, 0, 0))
-                        except:
+                        except Exception as e:
                             print('''
                             There was a problem connecting to the visualgap_claims database.
                             ERROR: {}'''.format(e))
@@ -2372,9 +2378,6 @@ class VGCqbCommunicator():
 
         # GAP Claims paid via ACH and $0 Claims
         ach_0_df = gap_pymts_df.loc[(gap_pymts_df['payment_amount'] <= 0) | (gap_pymts_df['pymt_method'].str.contains('ACH'))].copy()
-
-        # # attachment directory
-        # attachment_dir = 'S:/claims/letters/attachment/'
 
         # Remove files from staging directory
         self.clear_dir(self.file_staging_dir, file_ext) 
@@ -2488,7 +2491,7 @@ class VGCqbCommunicator():
                 # # save query results as DF
                 try:
                     c_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', c_sql_query, 0, 0))
-                except:
+                except Exception as e:
                     print('''
                     There was a problem connecting to the visualgap_claims database.
                     ERROR: {}'''.format(e))
@@ -2787,7 +2790,7 @@ class VGCqbCommunicator():
                 # # save query results as DF
                 try:
                     c_temp_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', c_sql_query, 0, 0))
-                except:
+                except Exception as e:
                     print('''
                     There was a problem connecting to the visualgap_claims database.
                     ERROR: {}'''.format(e))
@@ -2887,6 +2890,9 @@ class VGCqbCommunicator():
         statusText = f'\r\nUpdating payment status...'
         self.updateStatusText(statusText)
 
+        statusText = f'\r\nClaim letters have been exported to S:\Claims\Letters'
+        self.updateStatusText(statusText)
+
         statusText = f'\r\nComplete!'
         self.updateStatusText(statusText)
 
@@ -2924,14 +2930,12 @@ class VGCqbCommunicator():
             '''
 
         # Send query and receive response
-        # self.output.configure(state ='normal')
         statusText = f'\r\nRunning query...'
         self.updateStatusText(statusText)
 
         responseString = sessionManager.ProcessRequest(ticket, qbxmlQuery)
 
         # Disconnect from Quickbooks
-        # self.output.configure(state ='normal')
         statusText = f'\r\nDisconnecting from Quickbooks...'
         self.updateStatusText(statusText)
 
@@ -2942,7 +2946,6 @@ class VGCqbCommunicator():
         # create dataframe
         currentCustomerDF = pd.DataFrame(columns=['ListID','FullName'])
         
-        # self.output.configure(state ='normal')
         statusText = f'\r\nParsing query response...'
         self.updateStatusText(statusText)
 
@@ -2955,17 +2958,12 @@ class VGCqbCommunicator():
             # add to dataframe
             currentCustomerDF = currentCustomerDF.append({'ListID': customerListID, 'FullName': customerName}, ignore_index=True)
 
-        # self.output.configure(state ='normal')
         statusText = f'\r\nExporting results...'
         self.updateStatusText(statusText)
-
-        # display df
-        # print(currentCustomerDF)
 
         # export new qb customer list
         qb_cust = 'NewqbCustomers.csv'
         currentCustomerDF.to_csv(self.attachment_dir + qb_cust,header=True,index=False)
-        # self.output.configure(state ='normal')
 
         # email new qb customers
         msg_html = '''
@@ -2976,14 +2974,15 @@ class VGCqbCommunicator():
                 Thank you, <br>
                 Claims Department <br>
                 <br>
-                <b>Frost Financial Services, Inc. | VisualGAP <br>
+                <b>Frost Financial Services, Inc. | VisualGAP <br>pyinstaller
                 Claims Department <br>
                 Phone: 888-753-7678 Option 3</b>
                 </p>
             </body>
             </html>
         '''
-        self.send_email('jared@visualgap.com', 'New QB Customers', msg_html, self.attachment_dir, qb_cust)
+        to = ['jared@visualgap.com']
+        self.send_email(to, 'New QB Customers', msg_html, self.attachment_dir, qb_cust)
         statusText = f'\r\nComplete!'
         self.updateStatusText(statusText)
 
@@ -3060,7 +3059,7 @@ class VGCqbCommunicator():
         # execute and commit sql
         try:
             df = pd.DataFrame(self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql_file, 0, 0))
-        except:
+        except Exception as e:
             print('''
             There was a problem connecting to the claim_qb_payments database.
             ERROR: {}'''.format(e))
@@ -3110,7 +3109,7 @@ class VGCqbCommunicator():
                 # execute and commit sql
                 try:
                     self.mysql_q(mysql_u, mysql_pw, mysql_host, 'claim_qb_payments', sql, 0, 1)
-                except:
+                except Exception as e:
                     print('''
                     There was a problem connecting to the claim_qb_payments database.
                     ERROR: {}'''.format(e))
