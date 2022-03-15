@@ -1,4 +1,5 @@
-from tkinter import *
+import tkinter as tk
+from tkinter import ttk, Button, PhotoImage, Label, WORD, END, W, E, Toplevel
 import tkinter.scrolledtext as st
 import win32com.client as wc
 import xml.etree.ElementTree as ET
@@ -24,6 +25,9 @@ from bs4 import BeautifulSoup as Soup
 import numpy as np
 import pdfkit
 import pysftp
+import re
+
+from pandastable import Table
 
 # Get credentials
 from configTest import mysql_host, mysql_u, mysql_pw, vgc_host, vgc_u, vgc_pw, svr, db, sql_u, sql_pw, smtp_host, e_user, e_pw, port, sftp_h, sftp_u, sftp_p
@@ -32,28 +36,29 @@ from configTest import mysql_host, mysql_u, mysql_pw, vgc_host, vgc_u, vgc_pw, s
 class VGCqbCommunicator():
 
     def __init__(self):
-        # Create GUI Windows
-        window = Tk()
-        window.geometry("600x610")
-        window.title("Claim Payments")
-        window.configure(background='#696773')
-        window.iconbitmap('./images/claim_payments.ico')
+        # Create GUI self.windows
+        self.window = tk.Tk()
+        self.window.geometry("600x650")
+
+        self.window.title("Claim Payments")
+        self.window.configure(background='#696773')
+        self.window.iconbitmap('./images/claim_payments.ico')
 
         # Title label
-        Label (window, text='Claim Payments', bg='#696773', fg='#ececee', font=('Book Antiqua', 30, 'bold')) .grid(row=0, column=0, columnspan=4, padx = 30, pady = 10, sticky=W)
+        Label (self.window, text='Claim Payments', bg='#696773', fg='#ececee', font=('Book Antiqua', 30, 'bold')) .grid(row=0, column=0, columnspan=4, padx = 30, pady = 10, sticky=W)
 
         # Add Frost Logo
         frostLogo = PhotoImage(file='./images/Frostlogo_icon.png')
-        Label (window, image=frostLogo, bg='#696773') .grid(row=0, column=4, columnspan=2, padx = 30, pady = 10, sticky=W)
+        Label (self.window, image=frostLogo, bg='#696773') .grid(row=0, column=4, columnspan=2, padx = 30, pady = 10, sticky=W)
 
         # Status label
-        Label (window, text='Status:', bg='#696773', fg='#ececee', font=('Book Antiqua', 13, 'bold')) .grid(row=1, column=0, padx = 10, pady = 5, sticky=W)
+        Label (self.window, text='Status:', bg='#696773', fg='#ececee', font=('Book Antiqua', 13, 'bold')) .grid(row=1, column=0, padx = 10, pady = 5, sticky=W)
 
         # Version label
-        Label (window, text='v 1.0.0', bg='#696773', fg='#ececee', font=('Book Antiqua', 8)) .grid(row=7, column=0, padx = 10, pady = 5, sticky=W)
+        Label (self.window, text='v 1.0.0', bg='#696773', fg='#ececee', font=('Book Antiqua', 8)) .grid(row=9, column=0, padx = 10, pady = 5, sticky=W)
 
         # Status Scrolled text
-        self.output = st.ScrolledText(window, width = 70, height = 8, wrap=WORD, background='#363946', fg='#ed9511', font=('Book Antiqua', 12, 'bold'))
+        self.output = st.ScrolledText(self.window, width = 70, height = 8, wrap=WORD, background='#363946', fg='#ed9511', font=('Book Antiqua', 12, 'bold'))
         self.output.grid(row=3, column=0, columnspan=5, padx=(10,0))
 
         # Making the text read only
@@ -64,27 +69,55 @@ class VGCqbCommunicator():
         self.output.see(END)
         self.output.configure(state ='disabled')
 
+        # Carrier Combo Label
+        Label (self.window, text='Carriers:', bg='#696773', fg='#ececee', font=('Book Antiqua', 11, 'bold')) .grid(row=5, column=0, padx = 10, pady = 5, sticky=E)
+
+        # Carrier Combo
+        self.carrier_val = tk.StringVar()
+        self.carrierCbx = ttk.Combobox(self.window, width=15, textvariable=self.carrier_val, font=('Book Antiqua', 11))
+        self.carrierCbx['values'] = ('All Carriers', 'Allstate', 'ANICO', 'Farm Family Casualty', 'Fortega', 'Ohio Indemnity Company', 'Securian Casualty')
+        self.carrierCbx.grid(row=5, column=1, sticky=W)
+        self.carrierCbx.set('All Carriers')
+        self.carrierCbx['state'] = 'readonly'
+        self.carrierCbx.current()
+
+        # Payment Type Combo Label
+        Label (self.window, text='Payment Types:', bg='#696773', fg='#ececee', font=('Book Antiqua', 11, 'bold')) .grid(row=6, column=0, padx = 10, pady = 5, sticky=E)
+
+        # Payment Type Combo
+        self.payType_val = tk.StringVar()
+        self.payTypeCbx = ttk.Combobox(self.window, width=15, textvariable=self.payType_val, font=('Book Antiqua', 11))
+        self.payTypeCbx['values'] = ('All Types', 'Check', 'ACH-GL', 'ACH-CHK', 'ACH-SAV')
+        self.payTypeCbx.grid(row=6, column=1, sticky=W)
+        self.payTypeCbx.set('All Types')
+        self.payTypeCbx['state'] = 'readonly'
+        self.payTypeCbx.current()        
+
         # Customer button
-        self.customerBtn = Button(window, text='Get QB Customers', width=20, height=2, command=self.qbCustomers, bg='#1b1bd1', fg='#e3e3e6', font=('Book Antiqua', 13, 'bold')) 
-        self.customerBtn.grid(row=5, column=0, columnspan=3, pady=20, padx=20, sticky=E) 
+        customersImg = PhotoImage(file='./images/get_qb_customers_btn.png')
+        self.customerBtn = Button(self.window, image=customersImg, bg='#1b1bd1', width=198, height=22, relief="flat", command=self.qbCustomers) 
+        self.customerBtn.grid(row=7, column=3, columnspan=3, pady=10, padx=20, sticky=W) 
         self.customerBtn.bind("<Enter>", self.customerBtnEnter)
         self.customerBtn.bind("<Leave>", self.customerBtnClose)
 
         # Accounts button
-        self.accountsBtn = Button(window, text='Get QB Accounts', width=20, height=2, command=self.qbAccounts, bg='#1b1bd1', fg='#e3e3e6', font=('Book Antiqua', 13, 'bold')) 
-        self.accountsBtn.grid(row=5, column=3, columnspan=3, pady=20, padx=20, sticky=W) 
+        accountsImg = PhotoImage(file='./images/get_qb_accounts_btn.png')
+        self.accountsBtn = Button(self.window, image=accountsImg, bg='#1b1bd1', width=198, height=22, relief="flat", command=self.qbAccounts) 
+        self.accountsBtn.grid(row=8, column=3, columnspan=3, pady=10, padx=20, sticky=W) 
         self.accountsBtn.bind("<Enter>", self.accountsBtnEnter)
         self.accountsBtn.bind("<Leave>", self.accountsBtnClose)
 
         # VGC ==> QB button
-        self.vgcToQbBtn = Button(window, text='VGC ==> QB', width=20, height=2, command=self.vgcToQb, bg='#1b1bd1', fg='#e3e3e6', font=('Book Antiqua', 13, 'bold')) 
-        self.vgcToQbBtn.grid(row=6, column=0, columnspan=3, pady=20, padx=20, sticky=E) 
+        vgcToQbImg = PhotoImage(file='./images/vgc_to_qb_btn.png')
+        self.vgcToQbBtn = Button(self.window, image=vgcToQbImg, bg='#1b1bd1', width=198, height=48, relief="flat", command=self.vgcToQb) 
+        self.vgcToQbBtn.grid(row=5, column=3, columnspan=3, pady=10, padx=20, sticky=W) 
         self.vgcToQbBtn.bind("<Enter>", self.vgcToQbBtnEnter)
         self.vgcToQbBtn.bind("<Leave>", self.vgcToQbBtnClose)
 
         # QB ==> VGC button
-        self.qbToVgcBtn = Button(window, text='QB ==> VGC', width=20, height=2, command=self.qbToVgc, bg='#1b1bd1', fg='#e3e3e6', font=('Book Antiqua', 13, 'bold')) 
-        self.qbToVgcBtn.grid(row=6, column=3, columnspan=3, pady=20, padx=20, sticky=W) 
+        qbToVgcImg = PhotoImage(file='./images/qb_to_vgc_btn.png')
+        self.qbToVgcBtn = Button(self.window, image=qbToVgcImg, bg='#1b1bd1', width=198, height=48, relief="flat", command=self.qbToVgc) 
+        self.qbToVgcBtn.grid(row=6, column=3, columnspan=3, pady=10, padx=20, sticky=W) 
         self.qbToVgcBtn.bind("<Enter>", self.qbToVgcBtnEnter)
         self.qbToVgcBtn.bind("<Leave>", self.qbToVgcBtnClose)
 
@@ -94,9 +127,104 @@ class VGCqbCommunicator():
         # get current date
         self.now = datetime.now()
 
+        # Payment Summary
+        pymtSummaryImg = PhotoImage(file='./images/pymt_summary_btn.png')
+        self.pymtSummaryBtn = Button(self.window, image=pymtSummaryImg, bg='#1b1bd1', width=198, height=48, relief="flat", command=self.paymentSummary)
+        self.pymtSummaryBtn.grid(row=7, column=0, columnspan=3, pady=10, padx=20) 
+        self.pymtSummaryBtn.bind("<Enter>", self.pymtSummaryBtnEnter)
+        self.pymtSummaryBtn.bind("<Leave>", self.pymtSummaryBtnClose)
+
         # Main loop
-        window.mainloop()
-    
+        self.window.mainloop()
+
+    #===========================
+    #    Payment Summary
+    #===========================
+    def paymentSummary(self):
+        # check if popup is already open.
+        wid = 0
+        widgetList = self.window.winfo_children()
+        pattern = re.compile(".!toplevel*")
+        for widget in widgetList:
+            if bool(re.match(pattern,str(widget))) == True:
+                self.window.winfo_children()[wid].destroy()
+                print(f'Destroyed: {widget}')
+            wid += 1
+        
+        # Clear Output
+        self.clearStatusText()
+
+        # Update Status Text
+        statusText = f'Checking for claims Ready-to-be-Paid...'
+        self.updateStatusText(statusText)
+
+        sql = '''
+            SELECT c.claim_id, ca.description, l.payment_method
+            FROM claims c
+            INNER JOIN carriers ca
+                USING(carrier_id)
+            INNER JOIN claim_lender l
+                USING(claim_id)
+            INNER JOIN claim_status s
+                USING(status_id)
+            WHERE s.status_desc_id = 8
+            UNION ALL
+            SELECT c.claim_id, ca.description, l.payment_method
+            FROM claims c
+            INNER JOIN claim_lender l
+                USING (claim_id)
+            INNER JOIN carriers ca
+                USING(carrier_id)
+            INNER JOIN (SELECT pb.claim_id
+                        FROM claim_plus_benefit pb
+                        WHERE status_desc_id = 8) sqp
+                USING (claim_id)
+            INNER JOIN (SELECT c.claim_id
+                        FROM claims c
+                        INNER JOIN claim_status cs
+                            ON (c.status_id = cs.status_id)  
+                        WHERE cs.status_desc_id = 8
+                            OR cs.status_desc_id = 4) sqg
+                USING (claim_id) 
+            UNION ALL
+            SELECT c.claim_id, ca.description, l.payment_method
+            FROM claims c
+            INNER JOIN claim_lender l
+                USING (claim_id)
+            INNER JOIN carriers ca
+                USING(carrier_id)
+            INNER JOIN (SELECT pb.claim_id
+                        FROM claim_totalrestart pb
+                        WHERE status_desc_id = 8) sqp
+                USING (claim_id)
+            INNER JOIN claim_totalrestart ctr
+                USING (claim_id);
+            '''
+        # run query and create dataframe
+        summary_df = pd.DataFrame(self.mysql_q(vgc_u, vgc_pw, vgc_host, 'visualgap_claims', sql, 0, 0))
+        sum_cols = ['claim_id', 'carrier', 'pymt_method']
+        summary_df.columns = sum_cols
+        # group dataframe by carrier and pymt_method
+        summary_df = summary_df.groupby(['carrier','pymt_method']).count()
+        summary_df.reset_index(inplace=True)
+
+        # Update Status Text
+        statusText = f'\r\nDisplaying Ready-to-be-Paid Summary...'
+        self.updateStatusText(statusText)
+
+        # Create popup
+        pymtSumWin = Toplevel(self.window)
+        pymtSumWin.title("Ready-to-be-Paid Summary")
+
+        pymtSumWin.geometry("550x300")
+        pymtSumWin.configure(background='#696773')
+        pymtSumWin.iconbitmap('./images/claim_payments.ico')
+        # Create frame to diaplay dataframe
+        self.summaryFrame = ttk.Frame(pymtSumWin)
+        self.summaryFrame.pack()
+        summaryData = Table(self.summaryFrame, dataframe=summary_df)
+        summaryData.show()  
+        
     #===========================
     #    BUTTON HOVER FUNCTIONS
     #===========================
@@ -124,7 +252,15 @@ class VGCqbCommunicator():
     def qbToVgcBtnClose(self, sender):
         self.qbToVgcBtn['background']='#1b1bd1'
 
+    def pymtSummaryBtnEnter(self, sender):
+        self.pymtSummaryBtn['background']='#101078'
+
+    def pymtSummaryBtnClose(self, sender):
+        self.pymtSummaryBtn['background']='#1b1bd1'
+
+    #===========================
     # Status box functions
+    #===========================
     def updateStatusText(self, text):
         self.output.configure(state ='normal')
         self.statusText = f'{text}'
@@ -133,11 +269,25 @@ class VGCqbCommunicator():
         self.output.see(END)
         self.output.configure(state ='disabled')
 
+    def openLettersDir(event, link):
+        os.system(f"start {link}")
+
+    def addLinkStatusText(self, text, link):
+        self.output.configure(state ='normal')
+        self.statusText = f'{text} '
+        self.output.insert(END, self.statusText)
+        self.output.insert(END, link, ('dir', link))
+        self.output.tag_config('dir', underline=True, underlinefg='red')
+        self.output.tag_bind('dir', '<Button-1>', lambda e: self.openLettersDir(link))
+        self.output.update()
+        self.output.see(END)
+        self.output.configure(state ='disabled') 
+
     def clearStatusText(self):
         self.output.configure(state = 'normal')
         self.output.delete(0.0,END)
         self.output.configure(state ='disabled')
-    
+
     #===========================
     #   OPERATIONAL FUNCTIONS
     #===========================
@@ -176,6 +326,8 @@ class VGCqbCommunicator():
             cnx.close()
             # return query result
             return sql_result
+
+    
 
     # PDF Concatenation Function
     def ConCat_pdf (self, file_list, outfn):
@@ -1072,11 +1224,17 @@ class VGCqbCommunicator():
         #AO
         scc_file_df[40] = scc_file_df[40].str.pad(8, side='left', fillchar='0')
 
+        # SCC data file
+        sccFile = self.attachment_dir + 'FrostGAP.txt' 
+
+        # If file exists delete it
+        self.delete_file(sccFile)
+
         # write text file
         statusText = f'\r\nSaving SCC claim data file...'
         self.updateStatusText(statusText)
 
-        with open(self.attachment_dir + 'FrostGAP.txt', 'a') as f:
+        with open(sccFile, 'a') as f:
             for index, row in scc_file_df.iterrows():
                 col_index = 0
                 while col_index != len(row):
@@ -1652,6 +1810,22 @@ class VGCqbCommunicator():
         # Merge QB_ListID into df
         pymts_df = pymts_df.merge(carrier_df, left_on='carrier_id', right_on='carrier_id').copy()
 
+######### User Selections
+        # Display summary of payments to be processed grouped by Carrier and by Payment Method
+
+
+        # Filter pymts_df by user selections
+        carrierSel = self.carrier_val.get()
+        paySel = self.payType_val.get()
+
+        if carrierSel != 'All Carriers':
+            if paySel != 'All Types':
+                pymts_df = pymts_df.loc[(pymts_df['carrier'] == carrierSel) & (pymts_df['pymt_method'] == paySel)].copy()
+            else: 
+                pymts_df = pymts_df.loc[pymts_df['carrier'] == carrierSel].copy()
+        elif paySel != 'All Types':
+            pymts_df = pymts_df.loc[pymts_df['pymt_method'] == paySel].copy()
+
         # payments greater than 0 df
         qb_pymts_df = pymts_df.loc[pymts_df['amount'] > 0].copy()
 
@@ -2097,8 +2271,6 @@ class VGCqbCommunicator():
                     c_pdf_template = "letters/pdf_templates/GAP_calculation_template.pdf"
                     position = 3
                     self.calculations(c_template_df, c_pdf_template, position)
-                        
-                # Close SQL Connection
 
                 # create a list of file to concatenate
                 file_list = self.fileList(self.file_staging_dir, file_ext)
@@ -2196,7 +2368,6 @@ class VGCqbCommunicator():
             for tr_carrier in tr_carriers:
 
                 # Variable Defaults
-                tr_sql_where_cal = ''
                 tr_letters = True
                 tr_s_letters = True
                 tr_cals = []
@@ -2890,8 +3061,10 @@ class VGCqbCommunicator():
         statusText = f'\r\nUpdating payment status...'
         self.updateStatusText(statusText)
 
-        statusText = f'\r\nClaim letters have been exported to S:\Claims\Letters'
-        self.updateStatusText(statusText)
+        statusText = f'\r\nClaim letters have been exported to'
+        link = 'S:\Claims\Letters'
+        self.addLinkStatusText(statusText, link)
+        # self.updateStatusText(statusText)
 
         statusText = f'\r\nComplete!'
         self.updateStatusText(statusText)
