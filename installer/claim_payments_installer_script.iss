@@ -4,10 +4,10 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{E6891CD3-E9FA-4A74-96EA-6E505F2A390F}
+AppId={{6766B2C2-B674-4266-ADC3-D7EB490BA957}
 AppName=Claim Payments
-AppVersion=1.0.0
-;AppVerName=Claim Payments 1.0.0
+AppVersion=1.0.1
+;AppVerName=Claim Payments 1.0.1
 AppPublisher=Jared Behler
 AppPublisherURL=https://github.com/jediracer/Claim_Payments
 AppSupportURL=https://github.com/jediracer/Claim_Payments
@@ -91,6 +91,7 @@ Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\api-ms-win-c
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\api-ms-win-crt-time-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\api-ms-win-crt-utility-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\base_library.zip"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\kiwisolver.cp38-win32.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\libcrypto-1_1.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\libffi-8.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\libopenblas.VTYUM5MXKVFE4PZZER3L7PNO6YB4XFF3.gfortran-win32.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -123,13 +124,16 @@ Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\win32ui.pyd"
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\win32wnet.pyd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\altgraph-0.17.2.dist-info\*"; DestDir: "{app}\altgraph-0.17.2.dist-info"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\bcrypt\*"; DestDir: "{app}\bcrypt"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\certifi\*"; DestDir: "{app}\certifi"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\cryptography\*"; DestDir: "{app}\cryptography"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\cryptography-36.0.1.dist-info\*"; DestDir: "{app}\cryptography-36.0.1.dist-info"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\IPython\*"; DestDir: "{app}\IPython"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\jedi\*"; DestDir: "{app}\jedi"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\lxml\*"; DestDir: "{app}\lxml"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\markupsafe\*"; DestDir: "{app}\markupsafe"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\matplotlib\*"; DestDir: "{app}\matplotlib"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\nacl\*"; DestDir: "{app}\nacl"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\numexpr\*"; DestDir: "{app}\numexpr"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\numpy\*"; DestDir: "{app}\numpy"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\pandas\*"; DestDir: "{app}\pandas"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Users\jbehler\python\Claim_Payments\dist\Claim_Payments\parso\*"; DestDir: "{app}\parso"; Flags: ignoreversion recursesubdirs createallsubdirs
