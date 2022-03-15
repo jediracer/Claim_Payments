@@ -1896,6 +1896,11 @@ class VGCqbCommunicator():
                     pymt_type = 'Additional TotalRestart Pymt'
                 else: 
                     pymt_type = 'TotalRestart'
+            
+            if row['carrier_id'] == 8:
+                achChkNbr = 'EFT'
+            else: 
+                achChkNbr = 'ACH'
 
             pymtAmt = "{:.2f}".format(row['amount'])
 
@@ -1950,7 +1955,7 @@ class VGCqbCommunicator():
                                 <PayeeEntityRef>
                                     <ListID>{lender_qbid}</ListID>
                                 </PayeeEntityRef>
-                                <RefNumber>ACH</RefNumber>
+                                <RefNumber>{ach}</RefNumber>
                                 <TxnDate>{date}</TxnDate>
                                 <Memo>{memo}</Memo>
                                 <Address>
@@ -1974,7 +1979,7 @@ class VGCqbCommunicator():
                     </QBXMLMsgsRq>
                 </QBXML>'''.format(checking=row['checking'], lender_qbid=row['QB_ListID'], lender=row['lender_name'], date=pay_date, 
                         memo=f"{row['last']}/{row['first']} {pymt_type}", contact=row['contact'], address=row['address1'], city=row['city'], state=row['state'],
-                        zip=row['zip'], expense=row['expense'], amount = pymtAmt)
+                        zip=row['zip'], expense=row['expense'], amount = pymtAmt, ach=achChkNbr)
 
             # Send query and receive response
             responseString = sessionManager.ProcessRequest(ticket, qbxmlQuery)
